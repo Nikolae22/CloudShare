@@ -1,6 +1,6 @@
 import {Check} from "lucide-react";
 
-export default function PricingSection({pricingPlans}) {
+export default function PricingSection({pricingPlans,openSignUp}) {
 
 
     return (
@@ -59,7 +59,9 @@ export default function PricingSection({pricingPlans}) {
                                     ))}
                                 </ul>
                                 <div className='rounded-md shadow'>
-                                    <button className={`w-full flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md 
+                                    <button
+                                        onClick={()=>openSignUp()}
+                                        className={`w-full flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md 
                                     ${plan.highlighted ? 'text-white bg-purple-500 hover:bg-purple-600' : 'text-purple-600 bg-white hover:bg-gray-50 border-purple-500'} transition-colors-200`}>
                                         {plan.cta}
                                     </button>

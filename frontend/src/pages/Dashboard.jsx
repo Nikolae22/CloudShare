@@ -1,8 +1,11 @@
+import {UserButton} from "@clerk/clerk-react";
 
 
 export default function Dashboard(){
 
     return(
-        <div>Dashboard</div>
+        <div>
+            <UserButton />
+        </div>
     )
 }
