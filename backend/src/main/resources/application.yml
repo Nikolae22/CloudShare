@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: backend
+
+  data:
+    mongodb:
+      uri: mongodb://localhost:55000/cloudshare
+#      auto-index-creation: true
+
+server:
+  servlet:
+    context-path: /api
