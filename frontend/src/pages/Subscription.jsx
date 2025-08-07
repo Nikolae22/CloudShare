@@ -1,8 +1,11 @@
+import DashboardLayout from "../layout/DashboardLayout.jsx";
 
 
 export default function Subscription(){
 
     return(
-        <div>Subscription</div>
+        <DashboardLayout activeMenu="Subscription">
+            Subscription
+        </DashboardLayout>
     )
 }

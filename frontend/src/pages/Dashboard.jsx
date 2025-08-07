@@ -1,11 +1,15 @@
-import {UserButton} from "@clerk/clerk-react";
+import DashboardLayout from "../layout/DashboardLayout.jsx";
 
 
-export default function Dashboard(){
+export default function Dashboard() {
 
-    return(
+    return (
         <div>
-            <UserButton />
+            <DashboardLayout activeMenu="Dashboard">
+                <div>
+                    Dashbord contetn
+                </div>
+            </DashboardLayout>
         </div>
     )
 }

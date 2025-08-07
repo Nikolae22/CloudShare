@@ -1,8 +1,11 @@
+import DashboardLayout from "../layout/DashboardLayout.jsx";
 
 
 export default function Transactions(){
 
     return(
-        <div>Transacions</div>
+        <DashboardLayout activeMenu="Transactions">
+            Transaction
+        </DashboardLayout>
     )
 }

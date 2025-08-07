@@ -1,8 +1,11 @@
+import DashboardLayout from "../layout/DashboardLayout.jsx";
 
 
 export default function MyFiles(){
 
     return(
-        <div>My files</div>
+        <DashboardLayout activeMenu="My Files">
+            My files
+        </DashboardLayout>
     )
 }

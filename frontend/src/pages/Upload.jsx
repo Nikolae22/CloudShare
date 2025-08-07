@@ -1,8 +1,11 @@
+import DashboardLayout from "../layout/DashboardLayout.jsx";
 
 
 export default function Upload(){
 
     return(
-        <div>Upload</div>
+        <DashboardLayout activeMenu="Upload">
+            Upload
+        </DashboardLayout>
     )
 }

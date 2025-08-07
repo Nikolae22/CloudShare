@@ -1,3 +1,4 @@
+import {CreditCard, Files, LayoutDashboard, Receipt, Upload} from "lucide-react";
 
 export const features=[
     {
@@ -85,11 +86,53 @@ export const pricingPlans=[
 
 export const testimonials=[
     {
-        name: '',
-        role: '',
-        company:'',
-        image: '',
-        quote: '',
-        rating: 5
-    }
+        name: 'Nina Pola',
+        role: 'Project Manager',
+        company:'Micky mouse',
+        image: 'https://randomuser.me/api/portraits/women/65.jpg',
+        quote: 'Easy managing project files across multiple teams used.',
+        rating: 4
+    },
+    {
+        name: 'Ui Dx',
+        role: 'Freelance Designer',
+        company:'Self made',
+        image: 'https://randomuser.me/api/portraits/men/46.jpg',
+        quote: 'As a freelancer I need to share large design files with clients securely. CloudShare simplify my life',
+        rating: 4
+    },
+]
+
+export const SIDE_MENU_DATA=[
+    {
+        id: '01',
+        label: "Dashboard",
+        icon: LayoutDashboard,
+        path: '/dashboard'
+    },
+    {
+        id: '02',
+        label: "Upload",
+        icon: Upload,
+        path: '/upload'
+    },
+    {
+        id: '03',
+        label: "My Files",
+        icon: Files,
+        path: '/my-files'
+    },
+    {
+        id: '04',
+        label: "Subscription",
+        icon: CreditCard,
+        path: '/subscription'
+    },
+
+    {
+        id: '05',
+        label: "Transactions",
+        icon: Receipt,
+        path: '/transactions'
+    },
 ]
