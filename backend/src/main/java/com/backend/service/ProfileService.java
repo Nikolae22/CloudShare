@@ -1,5 +1,6 @@
 package com.backend.service;
 
+import com.backend.document.ProfileDocument;
 import com.backend.dto.ProfileDTO;
 import org.springframework.http.HttpStatus;
 
@@ -12,4 +13,6 @@ public interface ProfileService {
     boolean existsByClerkId(String clerkId);
 
     void deleteProfile(String clerkId);
+
+    ProfileDocument getCurrentProfile();
 }
