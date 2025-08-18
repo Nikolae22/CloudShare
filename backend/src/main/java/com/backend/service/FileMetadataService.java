@@ -14,4 +14,10 @@ public interface FileMetadataService {
     List<FileMetadataDTO> getFiles();
 
     FileMetadataDTO getPublicFile(String id);
+
+    FileMetadataDTO getDownloadableFile(String id);
+
+    void deleteFile(String id);
+
+    FileMetadataDTO togglePublic(String id);
 }

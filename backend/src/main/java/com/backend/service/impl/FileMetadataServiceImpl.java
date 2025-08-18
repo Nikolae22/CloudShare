@@ -90,6 +90,44 @@ public class FileMetadataServiceImpl implements FileMetadataService {
         return mapToDto(document);
     }
 
+    @Override
+    public FileMetadataDTO getDownloadableFile(String id) {
+        FileMetadataDocument file = fileMetadataRepository.findById(id).orElseThrow(
+                () -> new RuntimeException("File not found")
+        );
+
+        return mapToDto(file);
+    }
+
+    @Override
+    public void deleteFile(String id) {
+        try {
+            ProfileDocument currentProfile = profileService.getCurrentProfile();
+            FileMetadataDocument file = fileMetadataRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("File not found"));
+            if (file.getClerkId().equals(currentProfile.getClerkId())) {
+                throw new RuntimeException("File is not belong to u");
+            }
+
+            Path path = Paths.get(file.getFileLocation());
+            Files.deleteIfExists(path);
+            fileMetadataRepository.deleteById(id);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error deleting file");
+        }
+    }
+
+    @Override
+    public FileMetadataDTO togglePublic(String id) {
+        FileMetadataDocument file = fileMetadataRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("File not found"));
+        file.setIsPublic(!file.getIsPublic());
+        fileMetadataRepository.save(file);
+
+        return mapToDto(file);
+    }
+
     private FileMetadataDTO mapToDto(FileMetadataDocument fileMetadataDocument) {
         return FileMetadataDTO.builder()
                 .id(fileMetadataDocument.getId())
