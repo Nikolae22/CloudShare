@@ -19,8 +19,9 @@ import {
 import {useAuth} from "@clerk/clerk-react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import {Link, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import FileCard from "../components/FileCard.jsx";
+import {apiEndPoints} from "../util/apiEndpoints.js";
 
 
 export default function MyFiles() {
@@ -36,7 +37,7 @@ export default function MyFiles() {
     const fetchFiles = async () => {
         try {
             const token = await getToken();
-            const response = await axios.get('http://localhost:8080/api/files/my',
+            const response = await axios.get(apiEndPoints.FETCH_FILES,
                 {headers: {Authorization: `Bearer ${token}`}})
             if (response.status === 200) {
                 setFiles(response.data)
@@ -51,12 +52,35 @@ export default function MyFiles() {
     const togglePublic=async (fileToUpdate)=>{
         try {
             const token=await getToken();
-            await axios.patch(`http://localhost:8080/api/files/${fileToUpdate.id}/toggle-public`,
+            await axios.patch(apiEndPoints.TOGGLE_FILE(fileToUpdate.id),
                 {},{headers: {Authorization: `Bearer ${token}`}})
             setFiles(files.map((file)=> file.id === fileToUpdate.id ? {...file, isPublic: !file.isPublic} : file))
         }catch (e){
             console.log(e)
             toast.error('Error toggling file status',e.message)
+        }
+    }
+
+    //handle file download
+    const handleDownload=async (file)=>{
+        try {
+            const token=getToken()
+            const response=await axios.get(apiEndPoints.DOWNLOAD_FILE(file.id),
+                {headers: {Authorization: `Bearer ${token}`},
+                responseType: 'blob'});
+
+            //create a blob url and triggere download
+            const url=window.URL.createObjectURL(new Blob([response.data]));
+            const link=document.createElement("a");
+            link.href=url;
+            link.setAttribute("download",file.name);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url) //clean up the object url
+        }catch (e){
+            console.log(e);
+            toast.error("Error downloading the file",e.message)
         }
     }
 
@@ -198,6 +222,7 @@ export default function MyFiles() {
                                         <div className='grid grid-cols-3 gap-4'>
                                             <div className='flex justify-center'>
                                                 <button
+                                                    onClick={()=>handleDownload(file)}
                                                     title="Download"
                                                     className='text-gray-500 hover:text-blue-600'
                                                 >
