@@ -6,14 +6,16 @@ import MyFiles from "./pages/MyFiles.jsx";
 import Subscription from "./pages/Subscription.jsx";
 import Transactions from "./pages/Transactions.jsx";
 import {RedirectToSignIn, SignedIn, SignedOut} from "@clerk/clerk-react";
+import {Toaster} from "react-hot-toast";
 
 
 export default function App() {
 
     return (
         <BrowserRouter>
+            <Toaster />
             <Routes>
-                <Route index element={<Landing/>}/>
+                <Route index element={<Landing/>} />
                 <Route path='/dashboard' element={
                     <>
                         <SignedIn><Dashboard/></SignedIn>
