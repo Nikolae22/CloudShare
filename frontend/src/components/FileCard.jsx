@@ -1,7 +1,8 @@
 import {useState} from "react";
 import {Copy, Download, Eye, FileIcon, FileText, Globe, Image, Lock, Music, Trash2, Video} from "lucide-react";
 
-export default function FileCard({file}) {
+export default function FileCard(
+    {file,onDelete,onDownload,onShareLink,onTogglePuublic}) {
     const [showActions, setShowActions] = useState(false)
 
     const getFileIcon = (file) => {
@@ -78,8 +79,9 @@ export default function FileCard({file}) {
                 <div className="flex gap-3 w-full justify-center">
                     {file.isPublic && (
                         <button
+                            onClick={()=>onShareLink(file.id)}
                             title='Share Link'
-                            className="p-2 bg-white/90 rounded-full hover:bg-white transition-colors text-purple-500 hover:text-purple-600">
+                            className="p-2 cursor-pointer bg-white/90 rounded-full hover:bg-white transition-colors text-purple-500 hover:text-purple-600">
                             <Copy  size={18}/>
                         </button>
                     )}
@@ -87,24 +89,27 @@ export default function FileCard({file}) {
                         <a href={`/file/${file.id}`} title='View File'
                         target='_blank'
                            rel='noreferrer'
-                           className='p-2 bg-white/90 rounded-full hover:bg-white transition-colors text-gray-700 hover:text-gray-900'
+                           className='p-2 cursor-pointer bg-white/90 rounded-full hover:bg-white transition-colors text-gray-700 hover:text-gray-900'
                         >
                             <Eye  size={18}/>
                         </a>
                     )}
                     <button
+                        onClick={()=>onDownload(file)}
                         title='Download'
                         className="p-2 bg-white/90 rounded-full hover:bg-white cursor-pointer transition-colors text-green-600 hover:text-green-700">
                         <Download  size={18}/>
                     </button>
 
                     <button
+                        onClick={()=>onTogglePuublic(file)}
                         title={file.isPublic ? 'Make Private': 'Make Private'}
                         className="p-2 bg-white/90 rounded-full hover:bg-white cursor-pointer transition-colors text-amber-600 hover:text-amber-700">
                         {file.isPublic ? <Lock size={18} /> : <Globe size={18} /> }
                     </button>
 
                     <button
+                        onClick={()=>onDelete(file.id)}
                         title='Delete'
                         className="p-2 bg-white/90 rounded-full hover:bg-white cursor-pointer transition-colors text-red-600 hover:text-red-700">
                         <Trash2  size={18}/>

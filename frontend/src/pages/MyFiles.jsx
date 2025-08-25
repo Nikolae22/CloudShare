@@ -22,12 +22,24 @@ import toast from "react-hot-toast";
 import {useNavigate} from "react-router-dom";
 import FileCard from "../components/FileCard.jsx";
 import {apiEndPoints} from "../util/apiEndpoints.js";
+import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
+import LinkShareModal from "../components/LinkShareModal.jsx";
 
 
 export default function MyFiles() {
 
     const [files, setFiles] = useState([]);
     const [viewMode, setViewMode] = useState("list");
+    const [deleteConfirmation, setDeleteConfirmation] = useState({
+        isOpen: false,
+        fileId: null
+    })
+
+    const [shareModal, setShareModal] = useState({
+        isOpen: false,
+        fileId: null,
+        link: ''
+    })
 
     const navigate = useNavigate();
 
@@ -49,44 +61,101 @@ export default function MyFiles() {
     }
 
     // Toggles the public/private status of a file
-    const togglePublic=async (fileToUpdate)=>{
+    const togglePublic = async (fileToUpdate) => {
         try {
-            const token=await getToken();
+            const token = await getToken();
             await axios.patch(apiEndPoints.TOGGLE_FILE(fileToUpdate.id),
-                {},{headers: {Authorization: `Bearer ${token}`}})
-            setFiles(files.map((file)=> file.id === fileToUpdate.id ? {...file, isPublic: !file.isPublic} : file))
-        }catch (e){
+                {}, {headers: {Authorization: `Bearer ${token}`}})
+            setFiles(files.map((file) => file.id === fileToUpdate.id ? {...file, isPublic: !file.isPublic} : file))
+        } catch (e) {
             console.log(e)
-            toast.error('Error toggling file status',e.message)
+            toast.error('Error toggling file status', e.message)
         }
     }
 
     //handle file download
-    const handleDownload=async (file)=>{
+    const handleDownload = async (file) => {
         try {
-            const token=getToken()
-            const response=await axios.get(apiEndPoints.DOWNLOAD_FILE(file.id),
-                {headers: {Authorization: `Bearer ${token}`},
-                responseType: 'blob'});
+            const token = getToken()
+            const response = await axios.get(apiEndPoints.DOWNLOAD_FILE(file.id),
+                {
+                    headers: {Authorization: `Bearer ${token}`},
+                    responseType: 'blob'
+                });
 
             //create a blob url and triggere download
-            const url=window.URL.createObjectURL(new Blob([response.data]));
-            const link=document.createElement("a");
-            link.href=url;
-            link.setAttribute("download",file.name);
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", file.name);
             document.body.appendChild(link);
             link.click();
             link.remove();
             window.URL.revokeObjectURL(url) //clean up the object url
-        }catch (e){
+        } catch (e) {
             console.log(e);
-            toast.error("Error downloading the file",e.message)
+            toast.error("Error downloading the file", e.message)
         }
     }
 
-    useEffect(()=>{
+    //closes the delete confirmation
+    const closeDeleteConfirmation = () => {
+        setDeleteConfirmation({
+            isOpen: false,
+            fileId: null
+        })
+    }
+
+    // opens the delete confirmation modal
+    const openDeleteConfirmation = (fileId) => {
+        setDeleteConfirmation({
+            isOpen: true,
+            fileId
+        })
+    }
+
+    //delete a file after confirmation
+    const handleDelete = async () => {
+        const filedId = deleteConfirmation.fileId;
+        if (!filedId) return;
+
+        try {
+            const token = await getToken();
+            const response = await axios.delete(apiEndPoints.DELETE_FILE(filedId), {
+                headers: {Authorization: `Bearer ${token}`}
+            })
+            if (response.status === 204) {
+                setFiles(files.filter((file) => file.id !== filedId))
+                setDeleteConfirmation();
+            }
+        } catch (e) {
+            console.log(e)
+            toast.error("Something went wrong" + e.message)
+        }
+    }
+
+    //opens the share link modal
+    const openShareModal = (fileId) => {
+        const link = `${window.location.origin}/file/${fileId}`;
+        setShareModal({
+            isOpen: true,
+            fileId,
+            link
+        })
+    }
+
+    //close the share link modal
+    const closeShareModal = () => {
+        setShareModal({
+            isOpen: false,
+            fileId: null,
+            link: ''
+        })
+    }
+
+    useEffect(() => {
         fetchFiles()
-    },[getToken()])
+    }, [getToken()])
 
     const getFileIcon = (file) => {
         const extension = file.name.split('.').pop().toLowerCase();
@@ -108,7 +177,6 @@ export default function MyFiles() {
 
         return <FileIcon size={24} className='text-purple-500'/>
     }
-
 
 
     return (
@@ -154,11 +222,17 @@ export default function MyFiles() {
                         </button>
                     </div>
                 ) : viewMode === 'grid' ? (
-                   <div className='grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
-                       {files.map((file)=>(
-                           <FileCard  key={file.id} file={file}/>
-                       ))}
-                   </div>
+                    <div className='grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
+                        {files.map((file) => (
+                            <FileCard key={file.id}
+                                      file={file}
+                                      onDelete={openDeleteConfirmation}
+                                      onTogglePuublic={togglePublic}
+                                      onDownload={handleDownload}
+                                      onShareLink={openShareModal}
+                            />
+                        ))}
+                    </div>
                 ) : (
                     <div className='overflow-x-auto bg-white rounded-lg shadow'>
                         <table className='min-w-full'>
@@ -189,7 +263,7 @@ export default function MyFiles() {
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                         <div className='flex items-center gap-4'>
                                             <button
-                                                onClick={()=>togglePublic(file)}
+                                                onClick={() => togglePublic(file)}
                                                 className='flex items-center gap-2 cursor-pointer group'>
                                                 {file.isPublic ? (
                                                     <>
@@ -209,6 +283,7 @@ export default function MyFiles() {
                                             </button>
                                             {file.isPublic && (
                                                 <button
+                                                    onClick={() => openShareModal(file.id)}
                                                     className='flex items-center gap-2 cursor-pointer group text-blue-600'>
                                                     <Copy size={16}/>
                                                     <span className='group-hover:underline'>
@@ -222,7 +297,7 @@ export default function MyFiles() {
                                         <div className='grid grid-cols-3 gap-4'>
                                             <div className='flex justify-center'>
                                                 <button
-                                                    onClick={()=>handleDownload(file)}
+                                                    onClick={() => handleDownload(file)}
                                                     title="Download"
                                                     className='text-gray-500 hover:text-blue-600'
                                                 >
@@ -231,6 +306,7 @@ export default function MyFiles() {
                                             </div>
                                             <div className='flex justify-center'>
                                                 <button
+                                                    onClick={() => openDeleteConfirmation(file.id)}
                                                     title='Delete'
                                                     className='text-gray-500 hover:text-red-600'
                                                 >
@@ -246,7 +322,7 @@ export default function MyFiles() {
                                                        className='text-gray-500 hover:text-blue-600'>
                                                         <Eye size={18}/>
                                                     </a>
-                                                ):(
+                                                ) : (
                                                     <span className='w-[18px]'></span>
                                                 )}
                                             </div>
@@ -258,6 +334,25 @@ export default function MyFiles() {
                         </table>
                     </div>
                 )}
+                {/*Delete confirmation dialog*/}
+                <ConfirmationDialog
+                    isOpen={deleteConfirmation.isOpen}
+                    onClose={closeDeleteConfirmation}
+                    title='Delete file'
+                    message='Are you sure want to delete this file. This action cannot be undone'
+                    confirmText='Delete'
+                    cancelText='Cancel'
+                    onConfirm={handleDelete}
+                    confirmationButtonClass='bg-red-600 hover:bg-red-700'
+                />
+
+                {/*Share link modal*/}
+                <LinkShareModal
+                    isOpen={shareModal.isOpen}
+                    onClose={closeShareModal}
+                    link={shareModal.link}
+                    title='Share File'
+                />
             </div>
         </DashboardLayout>
     )
