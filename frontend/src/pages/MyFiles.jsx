@@ -1,10 +1,26 @@
 import DashboardLayout from "../layout/DashboardLayout.jsx";
-import {useState} from "react";
-import {Copy, Download, Eye, File, Globe, Grid, List, Lock, Trash2} from "lucide-react";
+import {useEffect, useState} from "react";
+import {
+    Copy,
+    Download,
+    Eye,
+    File,
+    FileIcon,
+    FileText,
+    Globe,
+    Grid,
+    Image,
+    List,
+    Lock,
+    Music,
+    Trash2,
+    Video
+} from "lucide-react";
 import {useAuth} from "@clerk/clerk-react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import {Link, useNavigate} from "react-router-dom";
+import FileCard from "../components/FileCard.jsx";
 
 
 export default function MyFiles() {
@@ -16,6 +32,7 @@ export default function MyFiles() {
 
     const {getToken} = useAuth();
 
+    //Fetching files for a logged in user
     const fetchFiles = async () => {
         try {
             const token = await getToken();
@@ -29,6 +46,45 @@ export default function MyFiles() {
             toast.error("Error fetching files from the server", error.message)
         }
     }
+
+    // Toggles the public/private status of a file
+    const togglePublic=async (fileToUpdate)=>{
+        try {
+            const token=await getToken();
+            await axios.patch(`http://localhost:8080/api/files/${fileToUpdate.id}/toggle-public`,
+                {},{headers: {Authorization: `Bearer ${token}`}})
+            setFiles(files.map((file)=> file.id === fileToUpdate.id ? {...file, isPublic: !file.isPublic} : file))
+        }catch (e){
+            console.log(e)
+            toast.error('Error toggling file status',e.message)
+        }
+    }
+
+    useEffect(()=>{
+        fetchFiles()
+    },[getToken()])
+
+    const getFileIcon = (file) => {
+        const extension = file.name.split('.').pop().toLowerCase();
+        console.log(extension)
+        if (['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'].includes(extension)) {
+            return <Image size={24} className='text-purple-500'/>
+        }
+
+        if (['mp4', 'webm', 'mov', 'avi', 'mkv'].includes(extension)) {
+            return <Video size={24} className='text-blue-500'/>
+        }
+        if (['mp3', 'wav', 'ogg', 'flac', 'm4a'].includes(extension)) {
+            return <Music size={24} className='text-green-500'/>
+        }
+
+        if (['pdf', 'doc', 'docx', 'txt', 'rtf'].includes(extension)) {
+            return <FileText size={24} className='text-amber-500'/>
+        }
+
+        return <FileIcon size={24} className='text-purple-500'/>
+    }
+
 
 
     return (
@@ -74,7 +130,11 @@ export default function MyFiles() {
                         </button>
                     </div>
                 ) : viewMode === 'grid' ? (
-                    <div>Grid view</div>
+                   <div className='grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
+                       {files.map((file)=>(
+                           <FileCard  key={file.id} file={file}/>
+                       ))}
+                   </div>
                 ) : (
                     <div className='overflow-x-auto bg-white rounded-lg shadow'>
                         <table className='min-w-full'>
@@ -92,7 +152,7 @@ export default function MyFiles() {
                                 <tr key={file.id} className='hover:bg-gray-50 transition-colors'>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
                                         <div className="flex items-center gap-2">
-                                            <File size={20} className='text-blue-600'/>
+                                            {getFileIcon(file)}
                                             {file.name}
                                         </div>
                                     </td>
@@ -104,7 +164,9 @@ export default function MyFiles() {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                         <div className='flex items-center gap-4'>
-                                            <button className='flex items-center gap-2 cursor-pointer group'>
+                                            <button
+                                                onClick={()=>togglePublic(file)}
+                                                className='flex items-center gap-2 cursor-pointer group'>
                                                 {file.isPublic ? (
                                                     <>
                                                         <Globe size={16} className='text-green-500'/>
@@ -152,9 +214,13 @@ export default function MyFiles() {
                                             </div>
                                             <div className='felx justify-center'>
                                                 {file.isPublic ? (
-                                                    <Link to={`/file/${file.id}`} className='text-gray-500 hover:text-blue-600'>
+                                                    <a href={`/file/${file.id}`}
+                                                       title='View File'
+                                                       target='_blank'
+                                                       rel='noreferrer'
+                                                       className='text-gray-500 hover:text-blue-600'>
                                                         <Eye size={18}/>
-                                                    </Link>
+                                                    </a>
                                                 ):(
                                                     <span className='w-[18px]'></span>
                                                 )}
