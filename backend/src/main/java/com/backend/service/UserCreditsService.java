@@ -13,4 +13,6 @@ public interface UserCreditsService {
     Boolean hasEnoughCredits(int requiredCredits);
 
     UserCredits consumeCredit();
+
+    UserCredits addCredits(String clerkId,Integer creditsToAdd,String plan);
 }
