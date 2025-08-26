@@ -8,6 +8,7 @@ import Transactions from "./pages/Transactions.jsx";
 import {RedirectToSignIn, SignedIn, SignedOut} from "@clerk/clerk-react";
 import {Toaster} from "react-hot-toast";
 import {UserCreditsProvider} from "./context/UserCreditsContext.jsx";
+import PublicFileView from "./pages/PublicFileView.jsx";
 
 
 export default function App() {
@@ -47,6 +48,11 @@ export default function App() {
                         <>
                             <SignedIn><Transactions/></SignedIn>
                             <SignedOut><RedirectToSignIn/></SignedOut>
+                        </>
+                    }/>
+                    <Route path="file/:fileId" element={
+                        <>
+                            <PublicFileView/>
                         </>
                     }/>
                     <Route path='/*' element={<RedirectToSignIn/>}/>
