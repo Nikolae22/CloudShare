@@ -18,3 +18,7 @@ dopo su subscribe event cerchiamo user
 create 
 
 dopo copiamo la secret key e togliamo la fase iniziale fino al_
+
+
+# bisogna creare laccount su razor pay
+per poter utilizare ilp agamento e aggiungere il razor id e secret
